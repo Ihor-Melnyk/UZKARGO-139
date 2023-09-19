@@ -1,10 +1,16 @@
 function onCardInitialize() {
-MarkCalendarTask();
+  MarkCalendarTask();
+}
+
+function onCreate() {
+  EdocsApi.setAttributeValue({ code: "SubgectAccount", value: "Надання технічних послуг із інспектування локомотивів", text: null });
+  EdocsApi.setAttributeValue({ code: "AccountInvoice", value: "13735,10", text: null });
+  EdocsApi.setAttributeValue({ code: "OrgRPEmail", value: EdocsApi.getEmployeeDataByEmployeeID(CurrentDocument.initiatorId).email, text: null });
 }
 
 //Скрипт 1. Вирахування ПДВ рахунку
 function calculationInvoiceAmount() {
-debugger
+  debugger;
   let VATpercentage = 0;
   const attrVATAmount = EdocsApi.getAttributeValue("InvoiceVATAmount");
   const attrVATpercentage = EdocsApi.getAttributeValue("InvoiceVATPercent");
@@ -38,12 +44,12 @@ debugger
 }
 
 function onChangeAccountInvoice() {
-debugger
+  debugger;
   calculationInvoiceAmount();
 }
 
 function onChangeInvoiceVATPercent() {
-debugger
+  debugger;
   calculationInvoiceAmount();
 }
 
@@ -158,7 +164,6 @@ function onTaskExecuteMarkCalendar(routeStage) {
   }
 }
 
-
 function sendComment(routeStage) {
   debugger;
   var orgCode = EdocsApi.getAttributeValue("OrgCode").value;
@@ -169,7 +174,9 @@ function sendComment(routeStage) {
   const NumberContract = EdocsApi.getAttributeValue("NumberContract");
   const DateContract = EdocsApi.getAttributeValue("DateContract").value;
   const InspectionDate = EdocsApi.getAttributeValue("InspectionDate").value;
-  var comment = `Доброго дня! Повідомляємо, що на виконання Договору про надання послуг інспектування № ${NumberContract.value ? NumberContract.value : " "} від ${DateContract ? ( new Date(DateContract).getDate()<10 ? '0'+new Date(DateContract).getDate() : new Date(DateContract).getDate())+'-'+ (new Date(DateContract).getMonth()<10? '0'+new Date(DateContract).getMonth() : new Date(DateContract).getMonth())+'-'+new Date(DateContract).getFullYear() : " "}, призначена наступна дата інспектування – ${new Date(InspectionDate ).getDate()}-${new Date(InspectionDate ).getMonth()<10? '0'+new Date(InspectionDate ).getMonth():new Date(InspectionDate ).getMonth()}-${new Date(InspectionDate ).getFullYear()}. З повагою, Філія «НДКТІ» АТ «Укрзалізниця».`;
+  var comment = `Доброго дня! Повідомляємо, що на виконання Договору про надання послуг інспектування № ${NumberContract.value ? NumberContract.value : " "} від ${
+    DateContract ? (new Date(DateContract).getDate() < 10 ? "0" + new Date(DateContract).getDate() : new Date(DateContract).getDate()) + "-" + (new Date(DateContract).getMonth() < 10 ? "0" + new Date(DateContract).getMonth() : new Date(DateContract).getMonth()) + "-" + new Date(DateContract).getFullYear() : " "
+  }, призначена наступна дата інспектування – ${new Date(InspectionDate).getDate()}-${new Date(InspectionDate).getMonth() < 10 ? "0" + new Date(InspectionDate).getMonth() : new Date(InspectionDate).getMonth()}-${new Date(InspectionDate).getFullYear()}. З повагою, Філія «НДКТІ» АТ «Укрзалізниця».`;
 
   var methodData = {
     extSysDocId: CurrentDocument.id,
@@ -194,13 +201,13 @@ function MarkCalendarTask() {
   switch (stateTask) {
     case "draft":
       controlRequired("InspectionDate", false);
-     controlDisabled("InspectionDate");
+      controlDisabled("InspectionDate");
       controlHidden("InspectionDate");
       break;
 
     case "assigned":
       controlDisabled("InspectionDate", false);
-     controlRequired("InspectionDate");
+      controlRequired("InspectionDate");
       controlHidden("InspectionDate", false);
       break;
 
@@ -209,7 +216,7 @@ function MarkCalendarTask() {
       controlRequired("InspectionDate");
       controlHidden("InspectionDate", false);
       break;
- 
+
     case "completed":
       controlDisabled("InspectionDate");
       controlHidden("InspectionDate", false);
@@ -221,22 +228,20 @@ function MarkCalendarTask() {
   }
 }
 
- 
-
 function controlHidden(CODE, hidden = true) {
   const control = EdocsApi.getControlProperties(CODE);
   control.hidden = hidden;
   EdocsApi.setControlProperties(control);
 }
 
-function controlDisabled(CODE, disabled= true) {
+function controlDisabled(CODE, disabled = true) {
   const control = EdocsApi.getControlProperties(CODE);
-  control.disabled= disabled;
+  control.disabled = disabled;
   EdocsApi.setControlProperties(control);
 }
-function controlRequired(CODE, required= true) {
+function controlRequired(CODE, required = true) {
   const control = EdocsApi.getControlProperties(CODE);
-  control.required= required;
+  control.required = required;
   EdocsApi.setControlProperties(control);
 }
 
@@ -249,21 +254,18 @@ function setDataForLetter() {
   const InspectionDate = EdocsApi.getAttributeValue("InspectionDate");
   const to = EdocsApi.getAttributeValue("ContractorRPEmail").value;
 
-EdocsApi.edocsSendDocByEmail({
-subject: 'Призначення дати інспектування',
-text: `<html><body> Доброго дня!<br>Повідомляємо, що на виконання Договору про надання послуг інспектування № ${NumberContract.value ? NumberContract.value : " "}<br> від ${DateContract.value ? DateContract.value : " "}, призначена наступна дата інспектування – ${InspectionDate.value ? InspectionDate.value : " "}+<br><br><br>З повагою,<br>Філія «НДКТІ»<br>АТ «Укрзалізниця»<br></body></html>`,
-separateMessages: "false",
-ecipients: to ? to.split(";") : [],
-});
-
-
-
+  EdocsApi.edocsSendDocByEmail({
+    subject: "Призначення дати інспектування",
+    text: `<html><body> Доброго дня!<br>Повідомляємо, що на виконання Договору про надання послуг інспектування № ${NumberContract.value ? NumberContract.value : " "}<br> від ${DateContract.value ? DateContract.value : " "}, призначена наступна дата інспектування – ${InspectionDate.value ? InspectionDate.value : " "}+<br><br><br>З повагою,<br>Філія «НДКТІ»<br>АТ «Укрзалізниця»<br></body></html>`,
+    separateMessages: "false",
+    ecipients: to ? to.split(";") : [],
+  });
 
   //const bodyText = `<html><body> Доброго дня!<br>Повідомляємо, що на виконання Договору про надання послуг інспектування № ${NumberContract.value ? NumberContract.value : " "}<br> від ${DateContract.value ? DateContract.value : " "}, //призначена наступна дата інспектування – ${InspectionDate.value ? InspectionDate.value : " "}+<br><br><br>З повагою,<br>Філія «НДКТІ»<br>АТ «Укрзалізниця»<br></body></html>`;
-//  const doc = {
- //   recipients: to ? to.split(";") : [],
-   // subject: subject,
+  //  const doc = {
+  //   recipients: to ? to.split(";") : [],
+  // subject: subject,
   //  body: bodyText,
-//  };
-//  EdocsApi.setAttributeValue({ code: "JSON", value: JSON.stringify(doc) });
+  //  };
+  //  EdocsApi.setAttributeValue({ code: "JSON", value: JSON.stringify(doc) });
 }
